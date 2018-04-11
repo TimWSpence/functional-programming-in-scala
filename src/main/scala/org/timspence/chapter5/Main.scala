@@ -8,10 +8,10 @@ sealed trait Stream[+A] {
 
   def toList: List[A] = this match {
     case Empty => Nil
-    case Cons(h,t) => h() :: toList(t())
+    case Cons(h,t) => h() :: t().toList
   }
 
-  def foldRight[B](z: => B)(F: (A, => B) => B): B = this match {
+  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
     case Cons(h,t) => f(h(), t().foldRight(z)(f))
     case _ => z
   }
@@ -19,18 +19,18 @@ sealed trait Stream[+A] {
   def take(n: Int): Stream[A] = {
     if(n == 0) Empty else this match {
       case Empty => empty
-      case Cons(h, t) => cons(h, () => t().take(n-1))
+      case Cons(h, t) => cons(h(), t().take(n-1))
     }
   }
 
   def takeWhile(p: A => Boolean): Stream[A] = this match {
     case Empty => empty
-    case Cons(h,t) => if(p(h())) cons(h, t.takeWhile(p)) else empty
+    case Cons(h,t) => if(p(h())) cons(h(), t().takeWhile(p)) else empty
   }
 
   def headOption: Option[A] = this match {
     case Empty => None
-    case Cons(h,t) => h()
+    case Cons(h,_) => Option(h())
   }
 }
 case object Empty extends Stream[Nothing]
@@ -52,6 +52,6 @@ object Stream {
     }
   }
 
-  def constant[A](a: A): Stream[A] = Cons(a, constant(a))
+  def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
 }
