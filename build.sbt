@@ -10,8 +10,8 @@ lazy val root = (project in file(".")).
     name := "Functional Programming in Scala",
     libraryDependencies += scalaTest % Test,
     libraryDependencies += cats,
-    libraryDependencies += shapeless
-    libraryDependencies += akka
+    libraryDependencies += shapeless,
+    libraryDependencies += akka,
     libraryDependencies += akkaStreams
   )
 

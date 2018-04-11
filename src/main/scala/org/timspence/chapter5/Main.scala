@@ -1,3 +1,5 @@
+package org.timspence.chapter5
+
 object Main extends App {
 }
 
