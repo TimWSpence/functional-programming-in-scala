@@ -22,7 +22,15 @@ object Free {
   def freeMonad[F[_]]: Monad[({type f[a] = Free[F,a]})#f] = ???
 
   @annotation.tailrec
-  def runTrampoline[A](a: Free[Function0,A]): A = runTrampoline(a)
+  def runTrampoline[A](a: Free[Function0,A]): A = a match {
+    case Return(a) => a
+    case Suspend(fa) => fa()
+    case FlatMap(s, f) => s match {
+      case Return(a) => runTrampoline(f(a))
+      case Suspend(fa) => runTrampoline(f(fa()))
+      case FlatMap(y, g) => runTrampoline(y flatMap(t => g(t).flatMap(f)))
+    }
+  }
 
 }
 
