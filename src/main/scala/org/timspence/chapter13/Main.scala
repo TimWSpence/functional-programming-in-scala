@@ -32,5 +32,19 @@ object Free {
     }
   }
 
+  def run[F[_],A](a: Free[F,A])(implicit F: Monad[F]): F[A] = step(a) match {
+    case Return(a) => F.pure(a)
+    case Suspend(fa) => fa
+    case FlatMap(Suspend(fa), f) => F.flatMap(fa)(a => run(f(a)))
+    case _ => throw new RuntimeException("Impossible")
+  }
+
+  @annotation.tailrec
+  def step[F[_], A](a: Free[F, A]): Free[F, A] = a match {
+    case FlatMap(FlatMap(y, g), f) => step(g(y) flatMap(f))
+    case FlatMap(Return(x), f) => step(f(x))
+    case _ => a
+  }
+
 }
 
