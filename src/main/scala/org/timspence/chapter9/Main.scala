@@ -14,6 +14,18 @@ object JSON {
   case class JBool(get: Boolean) extends JSON
   case class JArray(get: IndexedSeq[JSON]) extends JSON
   case class JObject(get: Map[String, JSON]) extends JSON
+
+  def parseJson[Err, Parser[+_]](P: Parsers[Err, Parser]): Parser[JSON] = {
+    import P._
+
+    val spaces = char(' ').many.slice
+
+    val obj: Parser[JObject] = ???
+    val str: Parser[String] = regex("\"\"".r)
+    val value = obj | str
+
+    null
+  }
 }
 
 trait Parsers[ParseError, Parser[+_]] { self =>
@@ -47,6 +59,8 @@ trait Parsers[ParseError, Parser[+_]] { self =>
     def flatMap[B](f: A=> Parser[B]): Parser[B] = self.flatMap(p)(f)
     def product[B](p2: => Parser[B]): Parser[(A,B)] = self.product(p, p2)
     def **[B](p2: Parser[B]) = product(p2)
+    def slice: Parser[String] = self.slice(p)
+    def listOfN(n: Int): Parser[List[A]] = self.listOfN(n, p)
   }
 }
 
